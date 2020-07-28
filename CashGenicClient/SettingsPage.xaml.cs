@@ -20,11 +20,27 @@ namespace CashGenicClient
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class Payment : Page
+    public sealed partial class SettingsPage : Page
     {
-        public Payment()
+        private SystemSettings systemSettings;
+
+
+        public SettingsPage()
         {
             this.InitializeComponent();
+
+            systemSettings = new SystemSettings();
+          
+
+
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            systemSettings.Save();
+            // force token refresh
+            systemSettings.TokenInvalidate();
+            this.Frame.GoBack();
         }
     }
 }

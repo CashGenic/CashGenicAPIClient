@@ -17,13 +17,16 @@ namespace CashGenicClient
     public class CashGenicAPIService
     {
 
-        private const string webUrl = "https://192.168.1.109:44333/";
-
-
-
 
         private static RestClient GetClient()
         {
+
+            Windows.Storage.ApplicationDataContainer localSettings =
+                Windows.Storage.ApplicationData.Current.LocalSettings;
+            Windows.Storage.StorageFolder localFolder =
+                Windows.Storage.ApplicationData.Current.LocalFolder;
+
+            string webUrl = "https://" + localSettings.Values["cgURL"].ToString() + ":" + localSettings.Values["portNumber"].ToString();
 
 
             ServicePointManager.ServerCertificateValidationCallback +=
@@ -142,6 +145,64 @@ namespace CashGenicClient
             }
 
 
+
+
+        }
+
+
+
+
+        public static async Task<SystemResponse> CancelSession(string token)
+        {
+
+
+            var client = GetClient();
+            var request = new RestRequest("session", Method.POST);
+            // request.RequestFormat = DataFormat.Json;
+            request.AddHeader("Authorization", "Bearer " + token);
+            request.AddHeader("Content-Type", "application/json");
+            request.AddJsonBody(new { request = "CancelPayment"});
+
+            IRestResponse response = await client.ExecuteAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                RequestResponse requestResponse = JsonConvert.DeserializeObject<RequestResponse>(response.Content);
+                return (SystemResponse)requestResponse.ResponseCode;
+            }
+            else
+            {
+                return SystemResponse.ConnectionError;
+            }
+
+
+        }
+
+
+
+
+        public static async Task<SystemResponse> EndSession(string token)
+        {
+
+
+            var client = GetClient();
+            var request = new RestRequest("session", Method.POST);
+            // request.RequestFormat = DataFormat.Json;
+            request.AddHeader("Authorization", "Bearer " + token);
+            request.AddHeader("Content-Type", "application/json");
+            request.AddJsonBody(new { request = "CloseSession" });
+
+            IRestResponse response = await client.ExecuteAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                RequestResponse requestResponse = JsonConvert.DeserializeObject<RequestResponse>(response.Content);
+                return (SystemResponse)requestResponse.ResponseCode;
+            }
+            else
+            {
+                return SystemResponse.ConnectionError;
+            }
 
 
         }

@@ -44,13 +44,16 @@ namespace CashGenicClient
 
 
         private bool _runSystem = false;
+        private bool _cancelPayment = false;
         public bool valueLoaded { get; set; }
         public bool payLoaded { get; set; }
+        public bool _closeSession { get; set; }
 
 
         public CashGenicSystem()
         {
-
+            _cancelPayment = false;
+            _closeSession = false;
         }
 
 
@@ -141,6 +144,22 @@ namespace CashGenicClient
         }
 
 
+        public void CancelPayment()
+        {
+
+            _cancelPayment = true;
+
+        }
+
+
+        public void CloseSession()
+        {
+
+            _closeSession = true;
+
+        }
+
+
 
         private async Task RunSystem()
         {
@@ -173,7 +192,18 @@ namespace CashGenicClient
                 }
                 ParseStatus(systemStatus.Events);
 
-                Debug.WriteLine(systemStatus.Events[0].EventEvent);
+
+                // any commands
+                if (_cancelPayment)
+                {
+                    _cancelPayment = false;
+                    SystemResponse systemResponse = await CashGenicAPIService.CancelSession(localSettings.Values["access_token"].ToString());
+                }
+                if (_closeSession)
+                {
+                    _closeSession = false;
+                    SystemResponse systemResponse = await CashGenicAPIService.EndSession(localSettings.Values["access_token"].ToString());
+                }
 
 
                 // poll delay
@@ -229,7 +259,7 @@ namespace CashGenicClient
         private async Task<ApiToken> GetAPIToken()
         {
 
-            ApiToken apiToken = await CashGenicAPIService.GetToken("ApiUserTwo", "ApiPassword12");
+            ApiToken apiToken = await CashGenicAPIService.GetToken(localSettings.Values["apiUserName"].ToString(), localSettings.Values["apiPassword"].ToString());
             if (apiToken != null)
             {
 

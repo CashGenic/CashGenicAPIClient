@@ -14,6 +14,10 @@ namespace CashGenicClient
         [JsonProperty("event")]
         public string EventEvent { get; set; }
 
+        [JsonProperty("timestamp")]
+        public string timestamp { get; set; }
+
+
         [JsonProperty("value")]
         public long Value { get; set; }
     }

@@ -5,20 +5,103 @@
     xmlns:local="using:CashGenicClient"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d" Loaded="Page_Loaded"
+    mc:Ignorable="d" 
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Background="AliceBlue">
+    <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="50"></RowDefinition>
             <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="100"></RowDefinition>
         </Grid.RowDefinitions>
-        <ProgressRing Name="prg1" Grid.Row="0" Margin="100,100,100,100"  VerticalAlignment="Top"/>
-        <TextBlock x:Name="txtInfo" HorizontalAlignment="Left" Grid.Row="0" Margin="100,100,0,0" Text="TextBlock" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <TextBlock x:Name="txtVersion"  HorizontalAlignment="Center"  Grid.Row="1" Text="TextBox"  FontSize="22"  TextWrapping="Wrap" VerticalAlignment="center"/>
-        <Button x:Name="bttnStart"  Content="Start System" Margin="100" Grid.Row="2"  Height="100" Width="200" VerticalAlignment="Center" HorizontalAlignment="Center" Click="bttnStart_Click"/>
-        <TextBlock  Name="txtError" Margin="10"   FontSize="32" Foreground="Red" Grid.Row="1" Text="ERROR!" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" />
+        <Image Height="50" Grid.Row="0" Width="235" Source="Assets/banner.png" />
+        <ProgressRing Name="prg1" Grid.Row="1" Margin="60" HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+        <TextBlock x:Name="txtInfo" Text="INFO" Grid.Row="1" HorizontalAlignment="Left" Margin="100" FontSize="32" VerticalAlignment="Center"/>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition Width="500"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="1" Background="Beige" Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <TextBlock Name="txtPayRequested" Text="Requested 0.00" Grid.Row="0" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock Name="txtPaymentMade" Text="Paid 0.00" Grid.Row="1" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock Name="txtChangePaid" Text="Change 0.00" Grid.Row="2" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Grid>
+            <Grid  Name="gridValue">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="220" ></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="250"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="txtValueRequest" Text="Value" Grid.Row="0" Grid.Column="0" FontSize="56"  TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Name="_Enter"  Content="Enter" Grid.Row="1" Grid.Column="1" Margin="10" Background="Gray"
+                    FontSize="36" Foreground="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
+                <Grid Grid.Row="1" Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Button Name="_1"  Content="1" Grid.Row="0" Grid.Column="0" Margin="10" Background="WhiteSmoke"
+                    FontSize="36" Foreground="Blue" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
+                    <Button Name="_2"  Content="2" Grid.Row="0" Grid.Column="1" Margin="10" Background="WhiteSmoke"
+                    FontSize="36" Foreground="Blue" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
+                    <Button Name="_3"  Content="3" Grid.Row="0" Grid.Column="2" Margin="10" Background="WhiteSmoke"
+                    FontSize="36" Foreground="Blue" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
 
+                    <Button Name="_4"  Content="4" Grid.Row="1" Grid.Column="0" Margin="10" Background="WhiteSmoke"
+                    FontSize="36" Foreground="Blue" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
+                    <Button Name="_5"  Content="5" Grid.Row="1" Grid.Column="1" Margin="10" Background="WhiteSmoke"
+                    FontSize="36" Foreground="Blue" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
+                    <Button Name="_6"  Content="6" Grid.Row="1" Grid.Column="2" Margin="10" Background="WhiteSmoke"
+                    FontSize="36" Foreground="Blue" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
+
+                    <Button Name="_7"  Content="7" Grid.Row="2" Grid.Column="0" Margin="10" Background="WhiteSmoke"
+                    FontSize="36" Foreground="Blue" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
+                    <Button Name="_8"  Content="8" Grid.Row="2" Grid.Column="1" Margin="10" Background="WhiteSmoke"
+                    FontSize="36" Foreground="Blue" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
+                    <Button Name="_9"  Content="9" Grid.Row="2" Grid.Column="2" Margin="10" Background="WhiteSmoke"
+                    FontSize="36" Foreground="Blue" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
+
+                    <Button Name="_0"  Content="0" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan ="2"  Margin="10" Background="WhiteSmoke"
+                    FontSize="36" Foreground="Blue" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
+
+                    <Button Name="_del"  Content="DEL" Grid.Row="3" Grid.Column="0" Margin="10" Background="LightPink"
+                    FontSize="36" Foreground="Blue" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
+
+                </Grid>
+
+            </Grid>
+
+
+        </Grid>
+        <Grid Name="gridControl" Grid.Row="2" Margin="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Name="bttnCancel" Background="AliceBlue" FontSize="22"  Content="Cancel" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" Click="bttnCancel_Click"/>
+            <Button Name="bttnDone" Background="LightGray" FontSize="22"  Content="Done" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" Click="bttnDone_Click"/>
+        </Grid>
+        <TextBlock Name="txtSettings" HorizontalAlignment="Left" Margin="20,0,0,0" TextDecorations="Underline" Foreground="Blue" VerticalAlignment="Center" Text="Settings" TextWrapping="Wrap" Grid.Row="0" RenderTransformOrigin="0.48,1.105" Tapped="txtSettings_Tapped"/>
     </Grid>
 </Page>
