@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition Width="240"></ColumnDefinition>
+            <ColumnDefinition Width="250"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <TextBlock x:Name="txtValueRequest"  Grid.Row="0" Grid.Column="0" FontSize="56"  TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Button Name="_Enter"  Content="Enter" Grid.Row="1" Grid.Column="1" Margin="20" Background="Gray"
