@@ -30,6 +30,7 @@ namespace CashGenicClient
         private string requestValue;
         private UIState uIState;
         private SessionPayment sessionPayment;
+        private bool _inRefund;
 
 
         private enum UIState
@@ -37,14 +38,19 @@ namespace CashGenicClient
             Startup,
             Connecting,
             Connected,
+            ConnectionError,
             Idle,
             Waiting,
             Cancelling,
             PayoutError,
+            PayoutFailed,
             PaymentMade,
             RefundMade,
+            ChangeMade,
             Complete,
-            Restore
+            Restore,
+            SetRefund,
+            CancelRefund
         };
 
 
@@ -56,12 +62,23 @@ namespace CashGenicClient
             sessionPayment = new SessionPayment();
             cashGenicSystem = new CashGenicSystem();
             uIState = UIState.Startup;
+            _inRefund = false;
 
             cashGenicSystem.NewSystemConnected += sys_NewSystemConnection;
-            //cashGenicSystem.NewSystemError += sys_NewSystemError;
+            cashGenicSystem.NewSystemError += sys_NewSystemError;
             cashGenicSystem.NewSystemEvents += sys_NewSystemEvents;
             _ = Connect();
 
+
+        }
+
+        private void sys_NewSystemError(object sender, CashGenicSystem.NewSystemErrorArgs e)
+        {
+            _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                SetUIState(UIState.ConnectionError);
+
+            });
 
         }
 
@@ -101,7 +118,7 @@ namespace CashGenicClient
                     // hide the key pad
                     _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
-                        if(sessionPayment == null)
+                        if (sessionPayment == null)
                         {
                             sessionPayment = new SessionPayment();
                         }
@@ -123,6 +140,12 @@ namespace CashGenicClient
                         SetUIState(UIState.PayoutError);
                     });
                     break;
+                case "PayOutFailed":
+                    _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        SetUIState(UIState.PayoutFailed);
+                    });
+                    break;
                 case "Payment":
                     _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
@@ -135,6 +158,13 @@ namespace CashGenicClient
                     {
                         sessionPayment.RefundMade = (int)ev.Value;
                         SetUIState(UIState.RefundMade);
+                    });
+                    break;
+                case "Change":
+                    _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        sessionPayment.ChangeMade = (int)ev.Value;
+                        SetUIState(UIState.ChangeMade);
                     });
                     break;
                 case "PaymentComplete":
@@ -159,16 +189,12 @@ namespace CashGenicClient
 
 
 
-
-
-
-
         private void AddValue(string v)
         {
 
             requestValue = requestValue + v;
             txtValueRequest.Text = requestValue;
-            DisplayValue(requestValue,txtValueRequest);
+            DisplayValue(requestValue, txtValueRequest);
 
         }
 
@@ -236,7 +262,14 @@ namespace CashGenicClient
                     }
                     break;
                 case "_Enter":
-                    _ = StartPayment();
+                    if (!_inRefund)
+                    {
+                        _ = StartPayment();
+                    }
+                    else
+                    {
+                        _ = StartRefund();
+                    }
                     break;
 
             }
@@ -256,11 +289,33 @@ namespace CashGenicClient
 
             txtValueRequest.Foreground = App.Current.Resources["systemTextColor"] as SolidColorBrush;
             SystemResponse rsp = await cashGenicSystem.StartPaymentSession(Convert.ToInt32(requestValue));
-            if (rsp == SystemResponse.OK)
+            if (rsp != SystemResponse.OK)
             {
-                
+                double v = Convert.ToDouble(requestValue) / 100;
+                txtValueRequest.Text = rsp.ToString() + " " + v.ToString("C", CultureInfo.CurrentCulture);
+                txtValueRequest.Foreground = App.Current.Resources["errorTextColor"] as SolidColorBrush;
+
             }
-            else
+
+
+        }
+
+
+
+        private async Task StartRefund()
+        {
+
+            sessionPayment = new SessionPayment();
+            sessionPayment.RefundRequest = Convert.ToInt32(requestValue);
+
+            double r = Convert.ToDouble(sessionPayment.RefundRequest) / 100;
+            txtPayRequested.Text = "Requested " + r.ToString("C", CultureInfo.CurrentCulture);
+
+
+
+            txtValueRequest.Foreground = App.Current.Resources["systemTextColor"] as SolidColorBrush;
+            SystemResponse rsp = await cashGenicSystem.StartRefundSession(Convert.ToInt32(requestValue));
+            if (rsp != SystemResponse.OK)
             {
                 double v = Convert.ToDouble(requestValue) / 100;
                 txtValueRequest.Text = rsp.ToString() + " " + v.ToString("C", CultureInfo.CurrentCulture);
@@ -277,15 +332,31 @@ namespace CashGenicClient
         private void SetUIState(UIState ui)
         {
             // no action if the state is unchanged
-            if(ui == uIState && ui != UIState.PaymentMade && ui != UIState.RefundMade)
+            if (ui == uIState && ui != UIState.PaymentMade && ui != UIState.RefundMade  && ui != UIState.ChangeMade)
             {
                 return;
             }
 
             switch (ui)
             {
-                case UIState.Connecting:
+                case UIState.ConnectionError:
+                    bttnConnect.Visibility = Visibility.Visible;
                     prg1.IsActive = true;
+                    txtInfo.Text = "Unable to connect to cashgenic";
+                    requestValue = "";
+                    DisplayValue("0", txtValueRequest);
+                    gridValue.Visibility = Visibility.Collapsed;
+                    txtPayRequested.Text = "";
+                    txtPaymentMade.Text = "";
+                    txtChangePaid.Text = "";
+                    bttnCancel.Visibility = Visibility.Collapsed;
+                    bttnDone.Visibility = Visibility.Collapsed;
+                    break;
+                case UIState.Connecting:
+                    txtTitle.Visibility = Visibility.Collapsed;
+                    txtRefund.Visibility = Visibility.Collapsed;
+                    prg1.IsActive = true;
+                    bttnConnect.Visibility = Visibility.Collapsed;
                     txtInfo.Text = "Connecting to CASHGENIC...";
                     requestValue = "";
                     DisplayValue("0", txtValueRequest);
@@ -296,13 +367,41 @@ namespace CashGenicClient
                     bttnCancel.Visibility = Visibility.Collapsed;
                     bttnDone.Visibility = Visibility.Collapsed;
                     break;
+                case UIState.SetRefund:
+                    _inRefund = true;
+                    ValueBox.Background = (SolidColorBrush)App.Current.Resources["systemRefundColor"];
+                    txtValueRequest.Foreground = (SolidColorBrush)App.Current.Resources["systemBackColor"];
+                    txtTitle.Visibility = Visibility.Visible;
+                    txtRefund.Text = "Cancel Refund";
+                    break;
+                case UIState.CancelRefund:
+                    _inRefund = false;
+                    ValueBox.Background = (SolidColorBrush)App.Current.Resources["systemBackColor"];
+                    txtValueRequest.Foreground = (SolidColorBrush)App.Current.Resources["systemTextColor"];
+                    txtTitle.Visibility = Visibility.Collapsed;
+                    txtRefund.Text = "Refund";
+                    break;
                 case UIState.Idle:
+                    txtRefund.Visibility = Visibility.Visible;
                     gridValue.Visibility = Visibility.Visible;
-                    prg1.IsActive = false;                    
+                    if (_inRefund)
+                    {
+
+                        ValueBox.Background = (SolidColorBrush)App.Current.Resources["systemRefundColor"];
+                        txtValueRequest.Foreground = (SolidColorBrush)App.Current.Resources["systemBackColor"];
+                        txtTitle.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        ValueBox.Background = (SolidColorBrush)App.Current.Resources["systemBackColor"];
+                        txtValueRequest.Foreground = (SolidColorBrush)App.Current.Resources["systemTextColor"];
+                        txtTitle.Visibility = Visibility.Collapsed;
+                    }
+                    prg1.IsActive = false;
                     txtPayRequested.Text = "Ready";
                     txtValueRequest.Text = "";
                     txtChangePaid.Text = "";
-                    txtPaymentMade.Text = "";                    
+                    txtPaymentMade.Text = "";
                     txtInfo.Text = "";
                     break;
                 case UIState.Waiting:
@@ -311,10 +410,19 @@ namespace CashGenicClient
                     gridValue.Visibility = Visibility.Collapsed;
                     bttnCancel.Visibility = Visibility.Visible;
                     bttnDone.Visibility = Visibility.Collapsed;
+                    txtRefund.Visibility = Visibility.Collapsed;
                     prg1.IsActive = true;
                     txtInfo.Text = "Waiting for payment";
-                    double c = Convert.ToDouble(sessionPayment.PaymentRequest) / 100;
-                    txtPayRequested.Text = "Requested " + c.ToString("C", CultureInfo.CurrentCulture);
+                    if (_inRefund)
+                    {
+                        double c_r = Convert.ToDouble(sessionPayment.RefundRequest) / 100;
+                        txtPayRequested.Text = "Requested " + c_r.ToString("C", CultureInfo.CurrentCulture);
+
+                    }
+                    else { 
+                        double c = Convert.ToDouble(sessionPayment.PaymentRequest) / 100;
+                        txtPayRequested.Text = "Requested " + c.ToString("C", CultureInfo.CurrentCulture);
+                    }
                     break;
                 case UIState.Cancelling:
                     bttnCancel.Visibility = Visibility.Collapsed;
@@ -322,14 +430,33 @@ namespace CashGenicClient
                     prg1.IsActive = true;
                     break;
                 case UIState.Complete:
+                    _inRefund = false;
                     prg1.IsActive = false;
                     txtInfo.Text = "Session Complete";
                     bttnDone.Visibility = Visibility.Visible;
+                    bttnCancel.Visibility = Visibility.Collapsed;
+                    ValueBox.Background = (SolidColorBrush)App.Current.Resources["systemBackColor"];
+                    txtValueRequest.Foreground = (SolidColorBrush)App.Current.Resources["systemTextColor"];
+                    txtTitle.Visibility = Visibility.Collapsed;
+                    txtRefund.Text = "Refund";
                     break;
                 case UIState.PayoutError:
                     prg1.IsActive = false;
                     txtInfo.Text = "Unable to payout change. Please cancel";
                     bttnCancel.Visibility = Visibility.Visible;
+                    break;
+                case UIState.PayoutFailed:
+                    double r = Convert.ToDouble(sessionPayment.RefundRequest) / 100;
+                    txtPayRequested.Text = "Requested " + r.ToString("C", CultureInfo.CurrentCulture);
+                    prg1.IsActive = false;
+                    txtInfo.Text = "Unable to payout this refund.";
+                    bttnDone.Visibility = Visibility.Visible;
+                    bttnCancel.Visibility = Visibility.Collapsed;
+                    _inRefund = false;
+                    ValueBox.Background = (SolidColorBrush)App.Current.Resources["systemBackColor"];
+                    txtValueRequest.Foreground = (SolidColorBrush)App.Current.Resources["systemTextColor"];
+                    txtTitle.Visibility = Visibility.Collapsed;
+                    txtRefund.Text = "Refund";
                     break;
                 case UIState.PaymentMade:
                     double c_made = Convert.ToDouble(sessionPayment.PaymentMade) / 100;
@@ -338,6 +465,10 @@ namespace CashGenicClient
                 case UIState.RefundMade:
                     double c_refund = Convert.ToDouble(sessionPayment.RefundMade) / 100;
                     txtChangePaid.Text = "Refund Paid " + c_refund.ToString("C", CultureInfo.CurrentCulture);
+                    break;
+                case UIState.ChangeMade:
+                    double c_change = Convert.ToDouble(sessionPayment.ChangeMade) / 100;
+                    txtChangePaid.Text = "Change Paid " + c_change.ToString("C", CultureInfo.CurrentCulture);
                     break;
                 case UIState.Restore:
                     double c_restore = Convert.ToDouble(sessionPayment.PaymentMade) / 100;
@@ -349,7 +480,6 @@ namespace CashGenicClient
 
             }
 
-
             // set current state
             uIState = ui;
 
@@ -359,12 +489,12 @@ namespace CashGenicClient
 
         private async Task Connect()
         {
-
-            SetUIState(UIState.Connecting);            
+            _inRefund = false;
+            SetUIState(UIState.Connecting);
             int ret = await cashGenicSystem.StartUp();
             if (ret != 0)
             {
-                txtInfo.Text = "Unable to connect to CashGenic System!";
+                SetUIState(UIState.ConnectionError);
             }
 
             prg1.IsActive = false;
@@ -374,9 +504,9 @@ namespace CashGenicClient
 
         private void bttnCancel_Click(object sender, RoutedEventArgs e)
         {
-
+            _inRefund = false;
             cashGenicSystem.CancelPayment();
-                       
+
         }
 
         private void bttnDone_Click(object sender, RoutedEventArgs e)
@@ -390,6 +520,25 @@ namespace CashGenicClient
 
             this.Frame.Navigate(typeof(SettingsPage));
 
+        }
+
+        private void bttnConnect_Click(object sender, RoutedEventArgs e)
+        {
+
+            _ = Connect();
+        }
+
+        private void txtRefund_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+
+            if (!_inRefund)
+            {
+                SetUIState(UIState.SetRefund);
+            }
+            else
+            {
+                SetUIState(UIState.CancelRefund);
+            }
         }
     }
 }

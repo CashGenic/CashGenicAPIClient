@@ -37,9 +37,8 @@ namespace CashGenicClient
 
 
             var client = new RestClient();
-            client.Timeout = -1;
+            client.Timeout = 2000; //ms
             client.BaseUrl = new Uri(webUrl);
-
 
             return client;
 
@@ -122,15 +121,11 @@ namespace CashGenicClient
 
         public static async Task<SystemResponse> StartSession(string token, int value)
         {
-
-
             var client = GetClient();
             var request = new RestRequest("session", Method.POST);
-           // request.RequestFormat = DataFormat.Json;
             request.AddHeader("Authorization", "Bearer " + token);
             request.AddHeader("Content-Type", "application/json");
             request.AddJsonBody(new { request = "PayAmount", value = value });
-
 
             IRestResponse response = await client.ExecuteAsync(request);
 
@@ -144,11 +139,31 @@ namespace CashGenicClient
                 return SystemResponse.ConnectionError;
             }
 
-
-
-
         }
 
+
+
+        public static async Task<SystemResponse> StartRefundSession(string token, int value)
+        {
+            var client = GetClient();
+            var request = new RestRequest("session", Method.POST);
+            request.AddHeader("Authorization", "Bearer " + token);
+            request.AddHeader("Content-Type", "application/json");
+            request.AddJsonBody(new { request = "RefundAmount", value = value });
+
+            IRestResponse response = await client.ExecuteAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                RequestResponse requestResponse = JsonConvert.DeserializeObject<RequestResponse>(response.Content);
+                return (SystemResponse)requestResponse.ResponseCode;
+            }
+            else
+            {
+                return SystemResponse.ConnectionError;
+            }
+
+        }
 
 
 

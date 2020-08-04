@@ -2,13 +2,14 @@
     x:Class="CashGenicClient.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"  
-    xmlns:local="using:CashGenicClient">
-
-
+    xmlns:local="using:CashGenicClient"
+    RequestedTheme="Light">
 
     <Application.Resources>
         <SolidColorBrush x:Key="errorTextColor" Color="#FF0000" />
         <SolidColorBrush x:Key="systemTextColor" Color="#808080" />
+        <SolidColorBrush x:Key="systemRefundColor" Color="#800000" />
+        <SolidColorBrush x:Key="systemBackColor" Color="#FFFFFF" />
     </Application.Resources>
 
 

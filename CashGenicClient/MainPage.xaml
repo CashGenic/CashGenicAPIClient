@@ -37,14 +37,17 @@
             </Grid>
             <Grid  Name="gridValue">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="220" ></RowDefinition>
+                    <RowDefinition Height="220"></RowDefinition>
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition></ColumnDefinition>
                     <ColumnDefinition Width="250"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="txtValueRequest" Text="Value" Grid.Row="0" Grid.Column="0" FontSize="56"  TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Border x:Name="ValueBox" Background="White">
+                    <TextBlock x:Name="txtValueRequest" Text="Value" Grid.Row="0" Grid.Column="0" FontSize="56" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock x:Name="txtTitle" Text="Refund" Grid.Row="0" Grid.Column="1" FontSize="56" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <Button Name="_Enter"  Content="Enter" Grid.Row="1" Grid.Column="1" Margin="10" Background="Gray"
                     FontSize="36" Foreground="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="_1_Click"/>
                 <Grid Grid.Row="1" Grid.Column="0">
@@ -101,7 +104,9 @@
             </Grid.ColumnDefinitions>
             <Button Name="bttnCancel" Background="AliceBlue" FontSize="22"  Content="Cancel" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" Click="bttnCancel_Click"/>
             <Button Name="bttnDone" Background="LightGray" FontSize="22"  Content="Done" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" Click="bttnDone_Click"/>
+            <Button Name="bttnConnect" Content="Connect"  Background="LightBlue" FontSize="22" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" Click="bttnConnect_Click"/>
         </Grid>
-        <TextBlock Name="txtSettings" HorizontalAlignment="Left" Margin="20,0,0,0" TextDecorations="Underline" Foreground="Blue" VerticalAlignment="Center" Text="Settings" TextWrapping="Wrap" Grid.Row="0" RenderTransformOrigin="0.48,1.105" Tapped="txtSettings_Tapped"/>
+        <TextBlock Name="txtSettings" HorizontalAlignment="Left" Margin="20,0,0,0" TextDecorations="Underline" Foreground="Blue" VerticalAlignment="Center" Text="Settings" TextWrapping="Wrap" Grid.Row="0" Tapped="txtSettings_Tapped"/>
+        <TextBlock Name="txtRefund" HorizontalAlignment="Left" Margin="100,0,0,0" TextDecorations="Underline" Foreground="Blue" VerticalAlignment="Center" Text="Refund" TextWrapping="Wrap" Grid.Row="0" Tapped="txtRefund_Tapped" />
     </Grid>
 </Page>

@@ -254,6 +254,26 @@ namespace CashGenicClient
 
 
 
+        public async Task<SystemResponse> StartRefundSession(int requestValue)
+        {
+
+            if (localSettings.Values["access_token"] == null || localSettings.Values["access_token_expire"] == null
+                || !IsTokenValid(Convert.ToDateTime(localSettings.Values["access_token_expire"].ToString())))
+            {
+                if (await GetAPIToken() == null)
+                {
+
+                    return SystemResponse.InvalidCredentials;
+                }
+            }
+
+            SystemResponse ret = await CashGenicAPIService.StartRefundSession(localSettings.Values["access_token"].ToString(), requestValue);
+            return ret;
+
+        }
+
+
+
 
 
         private async Task<ApiToken> GetAPIToken()

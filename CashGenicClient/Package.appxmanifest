@@ -9,7 +9,7 @@
   <Identity
     Name="1d7c5ee5-6ba1-4936-81f2-ef9df2a6c0bb"
     Publisher="CN=timbe"
-    Version="1.0.0.0" />
+    Version="1.1.8.0" />
 
   <mp:PhoneIdentity PhoneProductId="1d7c5ee5-6ba1-4936-81f2-ef9df2a6c0bb" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
