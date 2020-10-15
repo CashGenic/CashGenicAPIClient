@@ -81,8 +81,17 @@ namespace CashGenicClient
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                SystemDetail systemDetail = JsonConvert.DeserializeObject<SystemDetail>(response.Content);
-                return SystemDetail.FromJson(response.Content);
+
+                try
+                {
+
+                    SystemDetail systemDetail = JsonConvert.DeserializeObject<SystemDetail>(response.Content);
+                    return systemDetail;  // SystemDetail.FromJson(response.Content);
+                }catch(Exception ex)
+                {
+                    return null;
+                    
+                }
             }
             else
             {
