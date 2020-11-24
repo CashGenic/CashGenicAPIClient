@@ -70,7 +70,7 @@ namespace CashGenicClient
         public long Value { get; set; }
     }
 
-    public enum Country { EUR,GBP };
+    public enum Country { EUR,GBP,BRL };
 
     public enum Route { Cashbox, Payout };
 
@@ -115,6 +115,10 @@ namespace CashGenicClient
             {
                 return Country.GBP;
             }
+            if (value == "BRL")
+            {
+                return Country.GBP;
+            }
 
 
             throw new Exception("Cannot unmarshal type Country");
@@ -136,6 +140,11 @@ namespace CashGenicClient
             if (value == Country.GBP)
             {
                 serializer.Serialize(writer, "GBP");
+                return;
+            }
+            if (value == Country.BRL)
+            {
+                serializer.Serialize(writer, "BRL");
                 return;
             }
             throw new Exception("Cannot marshal type Country");
